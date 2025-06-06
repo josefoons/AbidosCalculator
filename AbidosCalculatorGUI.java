@@ -199,8 +199,12 @@ public class AbidosCalculatorGUI extends JFrame {
 		int lotesExtras = Math.min(Math.min(gris / GRIS_REQ, verde / VERDE_REQ), azul / AZUL_REQ);
 		int lotesTotales = lotesBase + Math.min(lotesExtras, (energia - lotesBase * energiaPorLote) / energiaPorLote);
         lotesTotales = Math.min(lotesTotales, energia / energiaPorLote);
-        int oroTotal = lotesTotales * oroPorLote;
-        int energiaUsada = lotesTotales * energiaPorLote;
+        //int oroTotal = lotesTotales * oroPorLote;
+        //int energiaUsada = lotesTotales * energiaPorLote;
+	
+		int crafteosTotales = lotesTotales * 10;
+		int oroTotal = crafteosTotales * oroPorLote;
+		int energiaUsada = crafteosTotales * energiaPorLote;	
 
 /*
         sb.append("--- CONVERSIÓN A POLVOS ---\n");
@@ -231,11 +235,11 @@ public class AbidosCalculatorGUI extends JFrame {
 		  .append(" → ").append(grisesCompras).append(" compras de 100 maderas grises\n")
 		  .append(" → Gris restante (excedente sin transformar): ").append(gris).append("\n\n");
 	  
-		  
+/*		  
         sb.append("Total polvitos obtenidos: ").append(verdesCompras * 80 + grisesCompras * 80).append("\n");
         sb.append("Total polvitos utilizados: ").append(azulesComprados).append("\n");
         sb.append("Azules comprados: ").append(azulesComprados).append(" (en ").append(azulesComprados / 10).append(" compras de 10)\n\n");
-		
+*/		
 		int inventarioFinalGris = gris + grisUsado;
 		int inventarioFinalVerde = verde + verdeUsado;
 		int inventarioFinalAzul = azul + azulUsado;
@@ -251,11 +255,17 @@ public class AbidosCalculatorGUI extends JFrame {
         sb.append("PUEDES FABRICAR: ").append(lotesTotales).append(" lotes de 10 Abidos (total: ").append(lotesTotales * 10).append(")\n");
         sb.append("ORO requerido: ").append(oroTotal).append("\n");
         sb.append("ENERGÍA requerida: ").append(energiaUsada).append("\n\n");
-
+/*
         int[] ventanas = new int[4];
         for (int i = 0; i < lotesTotales && i < MAXIMO_CRAFTEOS; i++) {
             ventanas[i % 4]++;
         }
+*/
+		
+		int[] ventanas = new int[4];
+		for (int i = 0; i < crafteosTotales && i < MAXIMO_CRAFTEOS; i++) {
+			ventanas[i % 4]++;
+		}
 
         int maxTiempo = 0;
         sb.append("TIEMPO total de crafteo (máximo por ventana):\n");
@@ -277,7 +287,7 @@ public class AbidosCalculatorGUI extends JFrame {
               .append(lotesTotales - MAXIMO_CRAFTEOS).append(" lotes adicionales.\n");
         }
 */
-
+/*
 		if (lotesTotales > MAXIMO_CRAFTEOS) {
 			int lotesExtra = lotesTotales - MAXIMO_CRAFTEOS;
 			sb.append("\n⚠️ Tienes más lotes disponibles, pero las 4 ventanas están llenas. Podrías hacer ")
@@ -303,7 +313,29 @@ public class AbidosCalculatorGUI extends JFrame {
 			sb.append("💰 Oro necesario adicional: ").append(oroExtra).append("\n");
 			sb.append("⚡ Energía necesaria adicional: ").append(energiaExtra).append("\n");
 		}
+*/
 
+		int lotesAdicionales = lotesTotales - 4 * 10; // MAXIMO_CRAFTEOS crafteos posibles
+		if (crafteosTotales > MAXIMO_CRAFTEOS) {
+			int crafteosExtra = crafteosTotales - MAXIMO_CRAFTEOS;
+			int[] ventanasExtra = new int[4];
+			for (int i = 0; i < crafteosExtra; i++) {
+				ventanasExtra[i % 4]++;
+			}
+
+			int tiempoExtraMax = 0;
+			for (int i = 0; i < 4; i++) {
+				int minutos = ventanasExtra[i] * tiempoPorLote;
+				if (minutos > tiempoExtraMax) tiempoExtraMax = minutos;
+			}
+
+			sb.append("\n⚠️ Tienes más lotes disponibles, pero las 4 ventanas están llenas. Podrías hacer ")
+			  .append(lotesAdicionales).append(" lotes adicionales.\n")
+			  .append("⏱️ Tiempo adicional necesario (máximo por ventana): ")
+			  .append(tiempoExtraMax / 60).append(" horas y ").append(tiempoExtraMax % 60).append(" minutos\n")
+			  .append("💰 Oro necesario adicional: ").append(lotesAdicionales * 10 * oroPorLote).append("\n")
+			  .append("⚡ Energía necesaria adicional: ").append(lotesAdicionales * 10 * energiaPorLote).append("\n");
+		}
 
         resultArea.setText(sb.toString());
     }
